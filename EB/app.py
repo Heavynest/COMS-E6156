@@ -100,6 +100,7 @@ def log_and_extract_input(method, path_params=None):
     data = None
     headers = dict(request.headers)
     method = request.method
+    form = request.form
 
     try:
         if request.data is not None:
@@ -118,7 +119,8 @@ def log_and_extract_input(method, path_params=None):
         "path_params": path_params,
         "query_params": args,
         "headers": headers,
-        "body": data
+        "body": data,
+        "form": form
         }
 
     log_message += " received: \n" + json.dumps(inputs, indent=2)
@@ -176,7 +178,7 @@ def user_register():
         logger.error("/email: _user_service = " + str(user_service))
 
         if inputs["method"] == "POST":
-            user_info=inputs["query_params"]
+            user_info=dict(inputs["form"])
             user_info['id']=str(uuid4())
             user_info['status']='pending'
             rsp = user_service.create_user(user_info)
