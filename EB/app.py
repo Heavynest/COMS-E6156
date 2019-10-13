@@ -119,8 +119,7 @@ def log_and_extract_input(method, path_params=None):
         "path_params": path_params,
         "query_params": args,
         "headers": headers,
-        "body": data,
-        "form": form
+        "body": data
         }
 
     log_message += " received: \n" + json.dumps(inputs, indent=2)
@@ -178,7 +177,7 @@ def user_register():
         logger.error("/email: _user_service = " + str(user_service))
 
         if inputs["method"] == "POST":
-            user_info=dict(inputs["form"])
+            user_info=inputs["body"]
             user_info['id']=str(uuid4())
             user_info['status']='pending'
             rsp = user_service.create_user(user_info)
@@ -238,6 +237,16 @@ def user_email(email):
                 rsp_data = None
                 rsp_status = 404
                 rsp_txt = "NOT FOUND"
+        elif inputs["method"]=="PUT":
+            rsp = user_service.update_email(inputs["body"],email)
+            if rsp is not None:
+                rsp_data = rsp
+                rsp_status = 200
+                rsp_txt = "OK"
+            else:
+                rsp_data = None
+                rsp_status = 404
+                rsp_txt = "NOT FOUND"
         else:
             rsp_data = None
             rsp_status = 501
@@ -258,6 +267,76 @@ def user_email(email):
     log_response("/email", rsp_status, rsp_data, rsp_txt)
 
     return full_rsp
+
+@application.route("/api/users", methods=["GET", "POST", "DELETE"])
+def user_email():
+
+    global _user_service
+
+    inputs = log_and_extract_input(demo)
+    rsp_data = None
+    rsp_status = None
+    rsp_txt = None
+
+    try:
+
+        user_service = _get_user_service()
+
+        logger.error("/email: _user_service = " + str(user_service))
+
+        if inputs["method"] == "GET":
+
+            rsp = user_service.get_user(inputs["body"])
+
+            if rsp is not None:
+                rsp_data = rsp
+                rsp_status = 200
+                rsp_txt = "OK"
+            else:
+                rsp_data = None
+                rsp_status = 404
+                rsp_txt = "NOT FOUND"
+        elif inputs["method"]=="POST":
+            rsp = user_register()
+            if rsp is not None:
+                rsp_data = rsp
+                rsp_status = 200
+                rsp_txt = "OK"
+            else:
+                rsp_data = None
+                rsp_status = 404
+                rsp_txt = "NOT FOUND"
+        elif inputs["method"]=="DELETE":
+            rsp = user_service.delete_user(inputs["body"])
+            if rsp is not None:
+                rsp_data = rsp
+                rsp_status = 200
+                rsp_txt = "OK"
+            else:
+                rsp_data = None
+                rsp_status = 404
+                rsp_txt = "NOT FOUND"
+        else:
+            rsp_data = None
+            rsp_status = 501
+            rsp_txt = "NOT IMPLEMENTED"
+
+        if rsp_data is not None:
+            full_rsp = Response(json.dumps(rsp_data), status=rsp_status, content_type="application/json")
+        else:
+            full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+
+    except Exception as e:
+        log_msg = "/email: Exception = " + str(e)
+        logger.error(log_msg)
+        rsp_status = 500
+        rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
+        full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+
+    log_response("/email", rsp_status, rsp_data, rsp_txt)
+
+    return full_rsp
+
 
 
 logger.debug("__name__ = " + str(__name__))

@@ -27,6 +27,8 @@ class BaseService():
 class UsersService(BaseService):
 
     required_create_fields = ['last_name', 'first_name', 'email', 'password']
+    required_email_fields=['last_name','first_name','password']
+    required_delete_fields=['last_name','first_name']
 
     def __init__(self, ctx=None):
 
@@ -38,15 +40,13 @@ class UsersService(BaseService):
 
     @classmethod
     def get_by_email(cls, email):
-
         result = UsersRDB.get_by_email(email)
+        if result["status"].lower()=="delete":
+            result="USER NOT EXISTED"
         return result
 
     @classmethod
     def create_user(cls, user_info):
-
-
-
         for f in UsersService.required_create_fields:
             v = user_info.get(f, None)
             if v is None:
@@ -62,7 +62,34 @@ class UsersService(BaseService):
 
         return result
 
+    @classmethod
+    def update_email(cls,user_info,email):
+        for f in UsersService.required_email_fields:
+            v = user_info.get(f, None)
+            if v is None:
+                raise ServiceException(ServiceException.missing_field, "Missing field = " + f)
 
+
+        result = UsersRDB.update_email(user_info,email)
+
+        return result
+
+    @classmethod
+    def get_user(cls,user_info):
+        result=UsersRDB.get_user(user_info)
+
+        return result
+
+    @classmethod
+    def delete_user(cls, user_info):
+        for f in UsersService.required_delete_fields:
+            v = user_info.get(f, None)
+            if v is None:
+                raise ServiceException(ServiceException.missing_field, "Missing field = " + f)
+
+        result = UsersRDB.delete_user(user_info)
+
+        return result
 
 
 

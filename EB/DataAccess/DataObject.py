@@ -63,6 +63,55 @@ class UsersRDB(BaseDataObject):
 
         return result
 
+    @classmethod
+    def get_user(cls, user_info):
+        try:
+            sql, args = data_adaptor.create_select(table_name="users",template=user_info)
+            res, data = data_adaptor.run_q(sql, args)
+        except pymysql.err.IntegrityError as ie:
+            if ie.args[0] == 1062:
+                raise (DataException(DataException.duplicate_key))
+            else:
+                raise DataException()
+        except Exception as e:
+            raise DataException()
+
+        return res
+
+    @classmethod
+    def delete_user(cls,user_info):
+        try:
+            sql, args = data_adaptor.create_update(table_name="users",new_values={"status":"deleted"},template=user_info)
+            res, data = data_adaptor.run_q(sql, args)
+        except pymysql.err.IntegrityError as ie:
+            if ie.args[0] == 1062:
+                raise (DataException(DataException.duplicate_key))
+            else:
+                raise DataException()
+        except Exception as e:
+            raise DataException()
+
+        return res
+
+
+
+
+    @classmethod
+    def update_email(cls,user_info,email):
+
+        try:
+            sql, args = data_adaptor.create_update(table_name="users",new_values={"email":email},template=user_info)
+            res, data = data_adaptor.run_q(sql, args)
+        except pymysql.err.IntegrityError as ie:
+            if ie.args[0] == 1062:
+                raise (DataException(DataException.duplicate_key))
+            else:
+                raise DataException()
+        except Exception as e:
+            raise DataException()
+
+        return res
+
 
 
 
