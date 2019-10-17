@@ -30,18 +30,6 @@ class UsersRDB(BaseDataObject):
         self._ctx = ctx
 
     @classmethod
-    def get_by_email(cls, email):
-
-        sql = "select * from e6156.users where email=%s"
-        res, data = data_adaptor.run_q(sql=sql, args=(email), fetch=True)
-        if data is not None and len(data) > 0:
-            result =  data[0]
-        else:
-            result = None
-
-        return result
-
-    @classmethod
     def create_user(cls, user_info):
 
         result = None
@@ -63,6 +51,36 @@ class UsersRDB(BaseDataObject):
 
         return result
 
+#user_email methods
+    @classmethod
+    def get_by_email(cls, email):
+
+        sql = "select * from e6156.users where email=%s"
+        res, data = data_adaptor.run_q(sql=sql, args=(email), fetch=True)
+        if data is not None and len(data) > 0:
+            result =  data[0]
+        else:
+            result = None
+
+        return result
+
+    @classmethod
+    def update_by_email(cls, new_values, email):
+
+        try:
+            sql, args = data_adaptor.create_update(table_name="users",new_values=new_values,template={"email":email})
+            res, data = data_adaptor.run_q(sql, args)
+        except pymysql.err.IntegrityError as ie:
+            if ie.args[0] == 1062:
+                raise (DataException(DataException.duplicate_key))
+            else:
+                raise DataException()
+        except Exception as e:
+            raise DataException()
+
+        return res
+
+# user_template methods
     @classmethod
     def get_user(cls, user_info):
         try:
@@ -82,25 +100,6 @@ class UsersRDB(BaseDataObject):
     def delete_user(cls,user_info):
         try:
             sql, args = data_adaptor.create_update(table_name="users",new_values={"status":"deleted"},template=user_info)
-            res, data = data_adaptor.run_q(sql, args)
-        except pymysql.err.IntegrityError as ie:
-            if ie.args[0] == 1062:
-                raise (DataException(DataException.duplicate_key))
-            else:
-                raise DataException()
-        except Exception as e:
-            raise DataException()
-
-        return res
-
-
-
-
-    @classmethod
-    def update_email(cls,user_info,email):
-
-        try:
-            sql, args = data_adaptor.create_update(table_name="users",new_values={"email":email},template=user_info)
             res, data = data_adaptor.run_q(sql, args)
         except pymysql.err.IntegrityError as ie:
             if ie.args[0] == 1062:
