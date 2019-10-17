@@ -1,1 +1,4 @@
 EB/.idea
+*.pyc
+.DS_Store
+
