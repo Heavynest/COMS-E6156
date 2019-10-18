@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
 from Context.Context import Context
 from DataAccess.DataObject import UsersRDB as UsersRDB
+import Middleware.notification as notification
 
 # The base classes would not be IN the project. They would be in a separate included package.
 # They would also do some things.
+
 
 class ServiceException(Exception):
 
@@ -51,7 +53,11 @@ class UsersService(BaseService):
                            "Email looks invalid: " + v)
 
         result = UsersRDB.create_user(user_info=user_info)
-
+        email = user_info.get("email", None)
+        msg = {
+            "email": email
+        }
+        notification.publish_it(msg)
         return result
 
 # user_email methods

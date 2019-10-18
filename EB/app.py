@@ -163,7 +163,7 @@ def demo(parameter):
     return rsp
 
 
-@application.route("/api/users", methods=["POST"])
+@application.route("/api/user", methods=["POST"])
 @application.route("/api/registrations", methods=["POST"])
 def user_register():
     global _user_service
@@ -210,7 +210,7 @@ def user_register():
     return full_rsp
 
 
-@application.route("/api/user/<email>", methods=["GET", "PUT", "DELETE"])
+@application.route("/api/user/<email>", methods=["GET", "POST", "PUT", "DELETE"])
 def user_email(email):
 
     global _user_service
