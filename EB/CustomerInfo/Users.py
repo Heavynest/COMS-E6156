@@ -60,11 +60,16 @@ class UsersService(BaseService):
         notification.publish_it(msg)
         return result
 
+    @classmethod
+    def activate_user(cls, email):
+        result = UsersRDB.update_by_email({"status": "active"}, email)
+        return result
+
 # user_email methods
     @classmethod
     def get_by_email(cls, email):
         result = UsersRDB.get_by_email(email)
-        if result is None or result["status"].lower()=="delete":
+        if result is None or result["status"].lower()=="deleted":
             result="USER NOT EXISTED"
         return result
 

@@ -2,6 +2,7 @@ import DataAccess.DataAdaptor as data_adaptor
 from abc import ABC, abstractmethod
 import pymysql.err
 
+
 class DataException(Exception):
 
     unknown_error   =   1001
