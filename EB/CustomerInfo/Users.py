@@ -91,14 +91,14 @@ class UsersService(BaseService):
         return result
 
     @classmethod
-    def update_email(cls,user_info,email):
+    def update_email(cls, user_info,email):
         for f in UsersService.required_email_fields:
             v = user_info.get(f, None)
             if v is None:
                 raise ServiceException(ServiceException.missing_field, "Missing field = " + f)
 
 
-        result = UsersRDB.update_email(user_info,email)
+        result = UsersRDB.update_email(user_info, email)
 
         return result
 
@@ -112,5 +112,13 @@ class UsersService(BaseService):
         result = UsersRDB.delete_user(user_info)
 
         return result
+
+# user resource query methods
+    @classmethod
+    def query_by_parameters(cls, params, fields):
+        result = UsersRDB.query_by_parameters(params, fields)
+
+        return result
+
 
 

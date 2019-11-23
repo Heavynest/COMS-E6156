@@ -129,6 +129,7 @@ def create_select(table_name, template, fields, order_by=None, limit=None, offse
 
     return (sql, args)
 
+
 def template_to_where_clause(template):
     """
 
