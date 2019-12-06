@@ -1,10 +1,10 @@
 //var app = angular.module("CustomerApp", []);
 
-CustomerApp.controller("ProfileController", function($scope, $http, $location, $window) {
+CustomerApp.controller("profileController", function($scope, $http, $location, $window) {
 
     console.log("Profile controller loaded.")
 
-    let s3 = jQuery.LiveAddress({
+    var s3 = jQuery.LiveAddress({
         key: "18981749384552786",
         waitForStreet: true,
         debug: true,
@@ -23,11 +23,13 @@ CustomerApp.controller("ProfileController", function($scope, $http, $location, $
     });
 
     $scope.placeholder = "enter an address and select a choice."
-
+    $scope.address="hh"
     $scope.addressKinds = ['Home', 'Work', 'Other']
 
     $scope.addressKind = function(idx) {
         console.log("Address kknk = " + $scope.addressKinds[idx]);
+        console.log("Address = " + $scope.address);
+
     };
 
 });
