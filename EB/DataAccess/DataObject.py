@@ -2,6 +2,13 @@ import DataAccess.DataAdaptor as data_adaptor
 from abc import ABC, abstractmethod
 import pymysql.err
 
+# logger
+import logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+#
+
 
 class DataException(Exception):
 
@@ -11,6 +18,7 @@ class DataException(Exception):
     def __init__(self, code=unknown_error, msg="Something awful happened."):
         self.code = code
         self.msg = msg
+
 
 class BaseDataObject(ABC):
 
@@ -52,7 +60,7 @@ class UsersRDB(BaseDataObject):
 
         return result
 
-#user_email methods
+    # user_email methods
     @classmethod
     def get_by_email(cls, email):
 
@@ -112,6 +120,63 @@ class UsersRDB(BaseDataObject):
 
         return res
 
+
+class ProfileRDB(BaseDataObject):
+
+    def __init__(self, ctx):
+        super().__init__()
+
+        self._ctx = ctx
+
+    @classmethod
+    def create_profile_or_update(cls, profile_info):
+        try:
+            sql, args = data_adaptor.create_insert(table_name="profile", row=profile_info)
+            sql += ' on duplicate key update element_value = values(element_value)'
+            res, data = data_adaptor.run_q(sql, args)
+            result = profile_info['uid']
+        except pymysql.err.IntegrityError as ie:
+            if ie.args[0] == 1062:
+                raise (DataException(DataException.duplicate_key))
+            else:
+                raise DataException()
+        except Exception as e:
+            raise DataException()
+
+        return result
+
+    # profile by uid
+    @classmethod
+    def get_by_uid(cls, uid):
+        sql = "select * from e6156.profile where uid=%s"
+        res, data = data_adaptor.run_q(sql=sql, args=uid, fetch=True)
+        return data
+
+    @classmethod
+    def delete_by_uid(cls, uid):
+        try:
+            sql = data_adaptor.create_delete(table_name="profile",template={"uid":uid})
+            res, data = data_adaptor.run_q(sql, args=uid)
+        except Exception as e:
+            raise DataException()
+
+        return res
+
+    # profile by query_params
+    @classmethod
+    def get_profile(cls, profile_info):
+        try:
+            sql, args = data_adaptor.create_select(table_name="profile",template=profile_info)
+            res, data = data_adaptor.run_q(sql, args)
+        except pymysql.err.IntegrityError as ie:
+            if ie.args[0] == 1062:
+                raise (DataException(DataException.duplicate_key))
+            else:
+                raise DataException()
+        except Exception as e:
+            raise DataException()
+
+        return data
 
 
 

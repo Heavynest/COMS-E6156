@@ -7,6 +7,7 @@ logger = logging.getLogger()
 
 _default_connection = None
 
+
 def _get_default_connection():
 
     global _default_connection
@@ -39,6 +40,7 @@ def get_connection(c_info=None):
         cursorclass=pymysql.cursors.DictCursor
     )
     return result
+
 
 def get_connection_and_cursor(connect_info=None):
 
@@ -89,7 +91,6 @@ def run_q(sql, args=None, fetch=True, cur=None, conn=None, commit=True):
         logger.debug("Executing SQL = " + log_message)
 
         res = cur.execute(sql, args)
-
         if fetch:
             data = cur.fetchall()
         else:
@@ -105,7 +106,7 @@ def run_q(sql, args=None, fetch=True, cur=None, conn=None, commit=True):
     return (res, data)
 
 
-def create_select(table_name, template, fields, order_by=None, limit=None, offset=None):
+def create_select(table_name, template, fields=None, order_by=None, limit=None, offset=None):
     """
     Produce a select statement: sql string and args.
 
@@ -117,7 +118,6 @@ def create_select(table_name, template, fields, order_by=None, limit=None, offse
     :param offset: Ignore for now.
     :return: A tuple of the form (sql string, args), where the sql string is a template.
     """
-
     if fields is None:
         field_list = " * "
     else:
@@ -126,8 +126,9 @@ def create_select(table_name, template, fields, order_by=None, limit=None, offse
     w_clause, args = template_to_where_clause(template)
 
     sql = "select " + field_list + " from " +  table_name + " " + w_clause
+    logger.error(sql)
 
-    return (sql, args)
+    return sql, args
 
 def template_to_where_clause(template):
     """
@@ -210,4 +211,13 @@ def create_update(table_name, new_values, template):
     return sql, args
 
 
+def create_delete(table_name, template):
+    """
 
+    :param template: A template to form the where clause.
+    :return: An update statement template and args.
+    """
+    w_clause, w_args = template_to_where_clause(template)
+    sql = "delete from " + table_name + " " + w_clause
+
+    return sql

@@ -10,6 +10,7 @@ from datetime import datetime
 import json
 
 from CustomerInfo.Users import UsersService as UserService
+from CustomerInfo.Profile import ProfileService as ProfileService
 from Context.Context import Context
 from uuid import uuid4
 
@@ -27,11 +28,14 @@ logger.setLevel(logging.DEBUG)
 #
 # AWS puts this function in the default started application
 # print a nice greeting.
+
+
 def say_hello(username = "World"):
     return '<p>Hello %s!</p>\n' % username
-
 # AWS put this here.
 # some bits of text for the page.
+
+
 header_text = '''
     <html>\n<head> <title>EB Flask Test</title> </head>\n<body>'''
 instructions = '''
@@ -59,6 +63,7 @@ application.add_url_rule('/<username>', 'hello', (lambda username:
 
 _default_context = None
 _user_service = None
+_profile_service = None
 
 
 def _get_default_context():
@@ -78,6 +83,16 @@ def _get_user_service():
         _user_service = UserService(_get_default_context())
 
     return _user_service
+
+
+def _get_profile_service():
+    global _profile_service
+
+    if _profile_service is None:
+        _profile_service = ProfileService(_get_default_context())
+
+    return _profile_service
+
 
 def init():
 
@@ -127,6 +142,7 @@ def log_and_extract_input(method, path_params=None):
     logger.debug(log_message)
 
     return inputs
+
 
 def log_response(method, status, data, txt):
 
@@ -256,7 +272,7 @@ def user_activate(email):
         rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
         full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
 
-    log_response("/email", rsp_status, rsp_data, rsp_txt)
+    log_response("/api/user/activate/<email>", rsp_status, rsp_data, rsp_txt)
 
     return full_rsp
 
@@ -323,19 +339,151 @@ def user_email(email):
             full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
 
     except Exception as e:
-        log_msg = "/email: Exception = " + str(e)
+        log_msg = "/api/user/<email>: Exception = " + str(e)
         logger.error(log_msg)
         rsp_status = 500
         rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
         full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
 
-    log_response("/email", rsp_status, rsp_data, rsp_txt)
+    log_response("/api/user/<email>:", rsp_status, rsp_data, rsp_txt)
 
     return full_rsp
 
 
-@application.route("/api/user", methods=["GET", "PUT", "DELETE"])
-def user_template():
+@application.route("/api/profile", methods=["GET","POST"])
+def profile():
+    global _profile_service
+
+    inputs = log_and_extract_input(demo)
+    rsp_data = None
+    rsp_status = None
+    rsp_txt = None
+    try:
+
+        profile_service = _get_profile_service()
+
+        logger.error("/api/profile: _profile_service = " + str(profile_service))
+        if inputs["method"] == "POST":
+            profile_info = dict(inputs["form"])
+            #TODO uid from session
+            profile_info['uid'] = "get uid from session //todo" if len(profile_info['uid']) < 10 else profile_info['uid']
+            #TODO
+            rsp = profile_service.create_profile(profile_info)
+
+            if rsp is not None:
+                rsp_data = rsp
+                rsp_status = 200
+                rsp_txt = "OK"
+            else:
+                rsp_data = None
+                rsp_status = 404
+                rsp_txt = "NOT FOUND"
+
+        elif inputs["method"] == "GET":
+            query_params = inputs['query_params']
+            rsp = profile_service.get_profile(query_params)
+            if rsp is not None:
+                rsp_data = rsp
+                rsp_status = 200
+                rsp_txt = "OK"
+            else:
+                rsp_data = None
+                rsp_status = 404
+                rsp_txt = "NOT FOUND"
+
+        if rsp_data is not None:
+            full_rsp = Response(json.dumps(rsp_data), status=rsp_status, content_type="application/json")
+        else:
+            full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+
+    except Exception as e:
+        log_msg = "/api/profile: Exception = " + str(e)
+        logger.error(log_msg)
+        rsp_status = 500
+        rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
+        full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+
+    log_response("/api/profile: ", rsp_status, rsp_data, rsp_txt)
+
+    return full_rsp
+
+
+@application.route("/api/profile/<uid>", methods=["GET", "PUT", "DELETE"])
+def profile_uid(uid):
+
+    global _profile_service
+
+    inputs = log_and_extract_input(demo, {"parameters": uid})
+    rsp_data = None
+    rsp_status = None
+    rsp_txt = None
+
+    try:
+
+        profile_service = _get_profile_service()
+
+        logger.error("/api/profile/<uid>: _profile_service = " + str(profile_service))
+
+        if inputs["method"] == "GET":
+
+            rsp = profile_service.get_by_uid(uid)
+
+            if rsp is not None:
+                rsp_data = rsp
+                rsp_status = 200
+                rsp_txt = "OK"
+            else:
+                rsp_data = None
+                rsp_status = 404
+                rsp_txt = "NOT FOUND"
+
+        elif inputs["method"] == "PUT":
+            profile_info = dict(inputs["form"])
+            profile_info['uid'] = uid
+            rsp = profile_service.update_by_uid(profile_info)
+            if rsp is not None:
+                rsp_data = rsp
+                rsp_status = 200
+                rsp_txt = "OK"
+            else:
+                rsp_data = None
+                rsp_status = 404
+                rsp_txt = "NOT FOUND"
+
+        elif inputs["method"] == "DELETE":
+            rsp = profile_service.delete_by_uid(uid)
+            if rsp is not None:
+                rsp_data = rsp
+                rsp_status = 200
+                rsp_txt = "OK"
+            else:
+                rsp_data = None
+                rsp_status = 404
+                rsp_txt = "NOT FOUND"
+        else:
+            rsp_data = None
+            rsp_status = 501
+            rsp_txt = "NOT IMPLEMENTED"
+
+        if rsp_data is not None:
+            full_rsp = Response(json.dumps(rsp_data), status=rsp_status, content_type="application/json")
+        else:
+            full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+
+    except Exception as e:
+        log_msg = "Exception = " + str(e)
+        logger.error(log_msg)
+        rsp_status = 500
+        rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
+        full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+
+    log_response("/api/profile/<uid>: " + uid, rsp_status, rsp_data, rsp_txt)
+
+    return full_rsp
+
+
+@application.route("/api/users/<uid>/profile", methods=["GET"])
+def profile_link_uid(uid):
     pass
 
 
