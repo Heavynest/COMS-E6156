@@ -67,7 +67,7 @@ class UsersRDB(BaseDataObject):
         sql = "select * from e6156.users where email=%s"
         res, data = data_adaptor.run_q(sql=sql, args=(email), fetch=True)
         if data is not None and len(data) > 0:
-            result =  data[0]
+            result = data[0]
         else:
             result = None
 
@@ -119,6 +119,22 @@ class UsersRDB(BaseDataObject):
             raise DataException()
 
         return res
+
+    # user resource query methods
+    @classmethod
+    def query_by_parameters(cls, params, fields):
+        try:
+            sql, args = data_adaptor.create_select(table_name="users", template=params, fields=fields)
+            res, data = data_adaptor.run_q(sql, args)
+        except pymysql.err.IntegrityError as ie:
+            if ie.args[0] == 1062:
+                raise (DataException(DataException.duplicate_key))
+            else:
+                raise DataException()
+        except Exception as e:
+            raise DataException()
+
+        return data
 
 
 class ProfileRDB(BaseDataObject):

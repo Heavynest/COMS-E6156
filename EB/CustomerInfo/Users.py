@@ -113,4 +113,9 @@ class UsersService(BaseService):
 
         return result
 
+    @classmethod
+    def query_by_parameters(cls, params, fields):
+        result = UsersRDB.query_by_parameters(params, fields)
+
+        return result
 
