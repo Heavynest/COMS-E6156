@@ -105,7 +105,7 @@ def run_q(sql, args=None, fetch=True, cur=None, conn=None, commit=True):
     return (res, data)
 
 
-def create_select(table_name, template, fields, order_by=None, limit=None, offset=None):
+def create_select(table_name, template, fields=None, order_by=None, limit=None, offset=None):
     """
     Produce a select statement: sql string and args.
 

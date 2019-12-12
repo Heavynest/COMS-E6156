@@ -69,8 +69,8 @@ class UsersService(BaseService):
     @classmethod
     def get_by_email(cls, email):
         result = UsersRDB.get_by_email(email)
-        if result is None or result["status"].lower()=="deleted":
-            result="USER NOT EXISTED"
+        # if result is None or result["status"].lower()=="deleted":
+        #     result="USER NOT EXISTED"
         return result
 
     @classmethod

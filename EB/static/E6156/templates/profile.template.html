@@ -1,28 +1,131 @@
 <!-- Page Content -->
 
 
-<div class="container" ng-app="CustomerApp" ng-controller="ProfileController">
+<div class="container" ng-app="CustomerApp" ng-controller="profileController">
 
 
     <!-- Call to Action Well -->
     <div class="card text-white bg-secondary my-4">
+        <table class="table table-dark">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Type</th>
+              <th scope="col">Subtype</th>
+              <th scope="col">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="i in profileinfo">
+              <th scope="row">{{ $index+1}}</th>
+              <td>{{i.element_type}}</td>
+              <td>{{i.element_subtype}}</td>
+              <td>{{i.element_value}}</td>
+            </tr>
+          </tbody>
+        </table>
+
         <div class="card-body">
-            <h2>Enter and Address</h2>
+            <h2>Address</h2>
             <form>
                 <br>
-                    <input type="text" id="newaddress" name="newaddress" placeholder="{{placeholder}}"  style="width:500px">
+                    <input type="text" id="newaddress" name="newaddress" ng-model="address" placeholder="{{placeholder}}"  style="width:500px">
+                <br>
+            </form>
+            <p></p>
+
+            <div class="dropdown">
+                <button class="btn  btn-primary dropdown-toggle"
+                        type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color:white;" >
+                     {{akind}}
+                </button>
+                <button class="btn  btn-primary"
+                        type="button" ng-click="updateAddress()" aria-haspopup="true" aria-expanded="false" style="color:white;" >
+                    Submit
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a ng-click="addressKind($index)" ng-repeat="k in addressKinds" class="dropdown-item">{{k}}</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card text-white bg-secondary my-4">
+        <div class="card-body">
+            <h2>Telephone</h2>
+            <form>
+                <br>
+                    <input type="text" id="newtelephone" name="newtelephone" ng-model="telephone" placeholder="{{placeholder}}"  style="width:500px">
                 <br>
             </form>
             <p></p>
             <div class="dropdown">
                 <button class="btn  btn-primary dropdown-toggle"
                         type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color:white;" >
-                    Choose the type of address
+                     {{telekind}}
+                </button>
+                <button class="btn  btn-primary"
+                        type="button" ng-click="updateTelephone()" aria-haspopup="true" aria-expanded="false" style="color:white;" >
+                    Submit
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a ng-click="addressKind($index)" ng-repeat="k in addressKinds" class="dropdown-item">{{k}}</a>
+                    <a ng-click="teleKind($index)" ng-repeat="k in addressKinds" class="dropdown-item">{{k}}</a>
                 </div>
             </div>
+
+        </div>
+    </div>
+
+    <div class="card text-white bg-secondary my-4">
+        <div class="card-body">
+            <h2>Email</h2>
+            <form>
+                <br>
+                    <input type="text" id="newemail" name="newemail" ng-model="email" placeholder="{{placeholder}}"  style="width:500px">
+                <br>
+            </form>
+            <p></p>
+            <div class="dropdown">
+                <button class="btn  btn-primary dropdown-toggle"
+                        type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color:white;" >
+                     {{emailkind}}
+                </button>
+                <button class="btn  btn-primary"
+                        type="button" ng-click="updateEmail()" aria-haspopup="true" aria-expanded="false" style="color:white;" >
+                    Submit
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a ng-click="emailKind($index)" ng-repeat="k in addressKinds" class="dropdown-item">{{k}}</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card text-white bg-secondary my-4">
+        <div class="card-body">
+            <h2>Other</h2>
+            <form>
+                <br>
+                    <input type="text" id="newother" name="newother" ng-model="other" placeholder="{{placeholder}}"  style="width:500px">
+                <br>
+            </form>
+            <p></p>
+            <div class="dropdown">
+                <button class="btn  btn-primary dropdown-toggle"
+                        type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color:white;" >
+                     {{otherkind}}
+                </button>
+                <button class="btn  btn-primary"
+                        type="button" ng-click="updateOther()" aria-haspopup="true" aria-expanded="false" style="color:white;" >
+                    Submit
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a ng-click="otherKind($index)" ng-repeat="k in addressKinds" class="dropdown-item">{{k}}</a>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -54,7 +157,7 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h2 class="card-title">Card Two</h2>
-                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quod tenetur ex natus at dolorem enim! Nesciunt pariatur voluptatem sunt quam eaque, vel, non in id dolore voluptates quos eligendi labore.</p>
+                    <p class="card-text">sb</p>
                 </div>
                 <div class="card-footer">
                     <a href="#" class="btn btn-primary">More Info</a>

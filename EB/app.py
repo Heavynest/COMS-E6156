@@ -8,10 +8,25 @@ from flask import Flask, Response, request
 
 from datetime import datetime
 import json
+import jwt
+import logging
+from datetime import datetime
 
-from CustomerInfo.Users import UsersService as UserService
-from Context.Context import Context
+from flask import Flask, Response, request,session
 from uuid import uuid4
+from Services.CustomerInfo.profile import ProfileService as ProfileService
+
+from Context.Context import Context
+from Services.CustomerInfo.Users import UsersService as UserService
+from Services.RegisterLogin.RegisterLogin import RegisterLoginSvc as RegisterLoginSvc
+import Middleware.security as security
+# from Middleware.middleware import SimpleMiddleWare as SimpleM
+# from Middleware.middleware import MWResponse as MWResponse
+from functools import wraps
+from flask import g, request, redirect, url_for
+
+import Middleware.notification as notification_middleware
+import Middleware.security as security_middleware
 
 # Setup and use the simple, common Python logging framework. Send log messages to the console.
 # The application should get the log level out of the context. We will change later.
@@ -59,7 +74,8 @@ application.add_url_rule('/<username>', 'hello', (lambda username:
 
 _default_context = None
 _user_service = None
-
+_registration_service = None
+_profile_service = None
 
 def _get_default_context():
 
@@ -79,12 +95,30 @@ def _get_user_service():
 
     return _user_service
 
+def _get_registration_service():
+    global _registration_service
+
+    if _registration_service is None:
+        _registration_service = RegisterLoginSvc()
+
+    return _registration_service
+
+def _get_profile_service():
+    global _profile_service
+
+    if _profile_service is None:
+        _profile_service = ProfileService(_get_default_context())
+
+    return _profile_service
+
 def init():
 
     global _default_context, _user_service
 
     _default_context = Context.get_default_context()
     _user_service = UserService(_default_context)
+    _registration_service = RegisterLoginSvc()
+
 
     logger.debug("_user_service = " + str(_user_service))
 
@@ -174,27 +208,40 @@ def user_register():
     rsp_txt = None
     try:
 
-        user_service = _get_user_service()
+        r_svc = _get_registration_service()
 
-        logger.error("/email: _user_service = " + str(user_service))
+
+        # logger.error("/email: _user_service = " + str(user_service))
 
         if inputs["method"] == "POST":
-            user_info = dict(inputs["form"])
+
+            user_info = dict(inputs["body"])
             user_info['id']=str(uuid4())
             user_info['status']='pending'
-            rsp = user_service.create_user(user_info)
+            rsp = r_svc.register(user_info)
+
+            # rsp = user_service.create_user(user_info)
 
             if rsp is not None:
                 rsp_data = rsp
-                rsp_status = 200
+                rsp_status = 201
                 rsp_txt = "OK"
+                link = rsp_data[0]
+                auth = rsp_data[1]
             else:
                 rsp_data = None
                 rsp_status = 404
                 rsp_txt = "NOT FOUND"
+        else:
+            rsp_data=None
+            rsp_status = 501
+            rsp_txt = "NOT IMPLEMENTED"
 
         if rsp_data is not None:
-            full_rsp = Response(json.dumps(rsp_data), status=rsp_status, content_type="application/json")
+            headers = {"Location": "/api/users/" + link}
+            headers["Authorization"] = auth
+            full_rsp = Response(rsp_txt, headers=headers,
+                                status=rsp_status, content_type="text/plain")
         else:
             full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
 
@@ -259,6 +306,60 @@ def user_activate(email):
     log_response("/email", rsp_status, rsp_data, rsp_txt)
 
     return full_rsp
+
+
+@application.route("/api/login", methods=["POST"])
+def login():
+
+    inputs = log_and_extract_input(demo, {"parameters": None})
+    rsp_data = None
+    rsp_status = None
+    rsp_txt = None
+
+    if 1:#try:
+
+        r_svc = _get_registration_service()
+
+        logger.error("/api/login: _r_svc = " + str(r_svc))
+
+        if inputs["method"] == "POST":
+
+            rsp = r_svc.login(inputs['body'])
+
+            if rsp is not False:
+                rsp_data = "OK"
+                rsp_status = 201
+                rsp_txt = "CREATED"
+            else:
+                rsp_data = None
+                rsp_status = 403
+                rsp_txt = "NOT AUTHORIZED"
+        else:
+            rsp_data = None
+            rsp_status = 501
+            rsp_txt = "NOT IMPLEMENTED"
+
+        logger.error(session.get("token"))
+        if rsp_data is not None:
+            # TODO Generalize generating links
+            headers = {"Authorization": rsp}
+            full_rsp = Response(json.dumps(rsp_data, default=str), headers=headers,
+                                status=rsp_status, content_type="application/json")
+        else:
+            full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+
+    # if 1:#except Exception as e:
+    #     # log_msg = "/api/registration: Exception = " + str(e)
+    #     # logger.error(log_msg)
+    #     rsp_status = 500
+    #     rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
+    #     full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+
+    log_response("/api/registration", rsp_status, rsp_data, rsp_txt)
+
+    return full_rsp
+
+
 
 
 @application.route("/api/user/<email>", methods=["GET", "POST", "PUT", "DELETE"])
@@ -333,6 +434,147 @@ def user_email(email):
 
     return full_rsp
 
+
+@application.route("/api/profile", methods=["GET","POST"])
+def profile():
+    global _profile_service
+
+    inputs = log_and_extract_input(demo)
+    rsp_data = None
+    rsp_status = None
+    rsp_txt = None
+    try:
+
+        profile_service = _get_profile_service()
+
+        logger.error("/api/profile: _profile_service = " + str(profile_service))
+        if inputs["method"] == "POST":
+            profile_info = dict(inputs["body"])
+            #TODO uid from session
+            # 暂时的authorization代码
+            token=inputs["headers"]["Authorization"]
+            temp=jwt.decode(token[2:-1],"cat")
+            # profile_info['uid'] = "get uid from session //todo" if len(profile_info['uid']) < 10 else temp['id']
+            profile_info["uid"]=temp["id"]
+            #TODO
+            rsp = profile_service.create_profile(profile_info)
+
+            if rsp is not None:
+                rsp_data = rsp
+                rsp_status = 200
+                rsp_txt = "OK"
+            else:
+                rsp_data = None
+                rsp_status = 404
+                rsp_txt = "NOT FOUND"
+
+        elif inputs["method"] == "GET":
+            query_params = inputs['query_params']
+            rsp = profile_service.get_profile(query_params)
+            if rsp is not None:
+                rsp_data = rsp
+                rsp_status = 200
+                rsp_txt = "OK"
+            else:
+                rsp_data = None
+                rsp_status = 404
+                rsp_txt = "NOT FOUND"
+
+        if rsp_data is not None:
+            full_rsp = Response(json.dumps(rsp_data), status=rsp_status, content_type="application/json")
+        else:
+            full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+
+    except Exception as e:
+        log_msg = "/api/profile: Exception = " + str(e)
+        logger.error(log_msg)
+        rsp_status = 500
+        rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
+        full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+
+    log_response("/api/profile: ", rsp_status, rsp_data, rsp_txt)
+
+    return full_rsp
+
+
+@application.route("/api/profile/<uid>", methods=["GET", "PUT", "DELETE"])
+def profile_uid(uid):
+
+    global _profile_service
+
+    inputs = log_and_extract_input(demo, {"parameters": uid})
+    rsp_data = None
+    rsp_status = None
+    rsp_txt = None
+
+    try:
+
+        profile_service = _get_profile_service()
+
+        logger.error("/api/profile/<uid>: _profile_service = " + str(profile_service))
+
+        if inputs["method"] == "GET":
+
+            rsp = profile_service.get_by_uid(uid)
+
+            if rsp is not None:
+                rsp_data = rsp
+                rsp_status = 200
+                rsp_txt = "OK"
+            else:
+                rsp_data = None
+                rsp_status = 404
+                rsp_txt = "NOT FOUND"
+
+        elif inputs["method"] == "PUT":
+            profile_info = dict(inputs["form"])
+            profile_info['uid'] = uid
+            rsp = profile_service.update_by_uid(profile_info)
+            if rsp is not None:
+                rsp_data = rsp
+                rsp_status = 200
+                rsp_txt = "OK"
+            else:
+                rsp_data = None
+                rsp_status = 404
+                rsp_txt = "NOT FOUND"
+
+        elif inputs["method"] == "DELETE":
+            rsp = profile_service.delete_by_uid(uid)
+            if rsp is not None:
+                rsp_data = rsp
+                rsp_status = 200
+                rsp_txt = "OK"
+            else:
+                rsp_data = None
+                rsp_status = 404
+                rsp_txt = "NOT FOUND"
+        else:
+            rsp_data = None
+            rsp_status = 501
+            rsp_txt = "NOT IMPLEMENTED"
+
+        if rsp_data is not None:
+            full_rsp = Response(json.dumps(rsp_data), status=rsp_status, content_type="application/json")
+        else:
+            full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+
+    except Exception as e:
+        log_msg = "Exception = " + str(e)
+        logger.error(log_msg)
+        rsp_status = 500
+        rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
+        full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+
+    log_response("/api/profile/<uid>: " + uid, rsp_status, rsp_data, rsp_txt)
+
+    return full_rsp
+
+
+@application.route("/api/users/<uid>/profile", methods=["GET"])
+def profile_link_uid(uid):
+    # TODO
+    pass
 
 @application.route("/api/user", methods=["GET", "PUT", "DELETE"])
 def user_template():
@@ -462,4 +704,4 @@ if __name__ == "__main__":
     init()
 
     application.debug = True
-    application.run()
+    application.run(port=5033)
