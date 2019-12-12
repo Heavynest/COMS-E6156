@@ -14,6 +14,11 @@ class ActionException(Exception):
         self.code = code
         self.msg = msg
 
+def generate_etag(user_info):
+    x = json.dumps(user_info, sort_keys = True).encode("utf-8")
+    etag = hashlib.md5(x).hexdigest()
+    return etag
+
 
 def hash_password(pwd):
     global _context
