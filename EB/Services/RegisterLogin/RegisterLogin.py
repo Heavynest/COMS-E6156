@@ -42,6 +42,7 @@ class RegisterLoginSvc():
         if s_info==None :
             return False
         if str(test) == s_info['password']:
+            etag = security.generate_etag(s_info)
             tok = security.generate_token(s_info)
             return tok
         else:

@@ -123,6 +123,16 @@ def init():
     logger.debug("_user_service = " + str(_user_service))
 
 
+
+def generate_etag_by_email(email):
+    user_service = _get_user_service()
+    res = user_service.get_by_email(email)
+    etag = security_middleware.generate_etag(res)
+    return etag
+
+
+
+
 # 1. Extract the input information from the requests object.
 # 2. Log the information
 # 3. Return extracted information.
@@ -172,6 +182,17 @@ def log_response(method, status, data, txt):
     }
 
     logger.debug(str(datetime.now()) + ": \n" + json.dumps(msg, indent=2))
+
+
+@application.route("/api/etag", methods=["GET"])
+def get_etag():
+    inputs = log_and_extract_input(demo)
+    query_params = inputs['query_params']
+    email = query_params['email']
+
+    etag = generate_etag_by_email(email)
+
+    return etag
 
 
 # This function performs a basic health check. We will flesh this out.
@@ -324,7 +345,8 @@ def login():
 
         if inputs["method"] == "POST":
 
-            rsp = r_svc.login(inputs['body'])
+            # rsp = r_svc.login(inputs['body'])
+            rsp, etag = r_svc.login(inputs['body'])
 
             if rsp is not False:
                 rsp_data = "OK"
@@ -342,7 +364,8 @@ def login():
         logger.error(session.get("token"))
         if rsp_data is not None:
             # TODO Generalize generating links
-            headers = {"Authorization": rsp}
+            # headers = {"Authorization": rsp}
+            headers = {"Authorization": rsp, "etag": etag}
             full_rsp = Response(json.dumps(rsp_data, default=str), headers=headers,
                                 status=rsp_status, content_type="application/json")
         else:
@@ -393,15 +416,33 @@ def user_email(email):
 
         elif inputs["method"] == "PUT":
             user_info = dict(inputs["form"])
-            rsp = user_service.update_by_email(user_info, email)
-            if rsp is not None:
-                rsp_data = rsp
-                rsp_status = 200
-                rsp_txt = "OK"
+            etag0 = inputs['headers']['Etag']
+            etag1 = generate_etag_by_email(email)
+            if etag0 != etag1:
+                rsp_status = 411
+                rsp_txt = "Etag doesn't match"
+
             else:
-                rsp_data = None
-                rsp_status = 404
-                rsp_txt = "NOT FOUND"
+                rsp = user_service.update_by_email(user_info, email)
+                if rsp is not None:
+                    rsp_data = rsp
+                    rsp_status = 200
+                    rsp_txt = "OK"
+                else:
+                    rsp_data = None
+                    rsp_status = 404
+                    rsp_txt = "NOT FOUND"
+                    
+            # user_info = dict(inputs["form"])
+            # rsp = user_service.update_by_email(user_info, email)
+            # if rsp is not None:
+            #     rsp_data = rsp
+            #     rsp_status = 200
+            #     rsp_txt = "OK"
+            # else:
+            #     rsp_data = None
+            #     rsp_status = 404
+            #     rsp_txt = "NOT FOUND"
 
         elif inputs["method"] == "DELETE":
             rsp = user_service.delete_by_email(email)

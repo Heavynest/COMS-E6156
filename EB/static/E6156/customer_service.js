@@ -54,6 +54,12 @@
 
                                 var auth = h.authorization;
                                 sStorage.setItem("token", auth);
+
+                                // add etag by hao
+                                var etag = h.etag;
+                                sStorage.setItem("etag", etag);
+                                /////////////////////
+
                                 resolve("OK")
                             }).error(function (error) {
                                 console.log("Error = " + JSON.stringify(error, null, 4));
