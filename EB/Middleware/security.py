@@ -1,8 +1,18 @@
 import jwt
 from Context.Context import Context
 from time import time
+import json
+from urllib.parse import urlparse
+_context = Context()
 
-_context = Context.get_default_context()
+class ActionException(Exception):
+
+    unknown_error   =   2001
+    unproved_action  =   2002
+
+    def __init__(self, code=unknown_error, msg="NOT APPROVED."):
+        self.code = code
+        self.msg = msg
 
 
 def hash_password(pwd):
@@ -31,4 +41,42 @@ def generate_token(info):
 
 
 def authorize(url, method, token):
-    pass
+    # Extract user information from url. Determine whether the methond should be approved.
+    u = urlparse(url)
+    action = u[2].split("/")
+
+    approve_anyuser = ["GET", "PUT"]
+    approve_admin = ["GET", "PUT", "DELETE"]
+    approve_onlyposter = ["POST"]
+    if token:
+        try:
+            info = jwt.decode(token, key="jwt-secret")
+        except(jwt.DecodeError, jwt.ExpiredSignatureError):
+            return json.response({'message': 'Token is not valid'})
+    email = ""
+    uid = ""
+    for i in action:
+        if "@" in i:
+            email = i
+            break
+        if "-" in i:
+            uid = i
+            break
+
+    if method in approve_onlyposter:
+        if email == token['email'] or uid == token["uid"]:
+            info['operations'] = approve_onlyposter
+        else:
+            raise (ActionException(ActionException.unproved_action))
+    elif method in approve_admin:
+        if info['role'] != 'admin':
+            raise (ActionException(ActionException.unproved_action))
+        else:
+            info['operations'] = approve_admin
+    else:
+        info["operations"] = approve_anyuser
+
+    h = jwt.encode(info, key=_context.get_context("jwt-secret"))
+    h = str(h)
+
+    return h
