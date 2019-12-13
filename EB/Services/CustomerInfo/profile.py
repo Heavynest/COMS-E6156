@@ -92,7 +92,8 @@ class ProfileService(BaseService):
             raise ServiceException(ServiceException.bad_data,
                                    "Invalid element_type: " + profile_info.get('element_type'))
 
-        if profile_info.get('element_subtype') is not None and profile_info.get('element_subtype').upper() not in ProfileService.valid_element_sub_type:
+        if profile_info.get('element_subtype') is not None \
+                and profile_info.get('element_subtype').upper() not in ProfileService.valid_element_sub_type:
             raise ServiceException(ServiceException.bad_data,
                                    "Invalid element_subtype: " + profile_info.get('element_subtype'))
 

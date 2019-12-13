@@ -4,29 +4,19 @@
 # - Response enables creating well-formed HTTP/REST responses.
 # - requests enables accessing the elements of an incoming HTTP/REST request.
 #
-from flask import Flask, Response, request
-
-from datetime import datetime
 import json
 import jwt
-import logging
-from datetime import datetime
-
-from flask import Flask, Response, request,session
 from uuid import uuid4
-from Services.CustomerInfo.profile import ProfileService as ProfileService
-
+from datetime import datetimegi
+from flask import Flask, Response, g, request, redirect, url_for
 from Context.Context import Context
 from Services.CustomerInfo.Users import UsersService as UserService
+from Services.CustomerInfo.profile import ProfileService as ProfileService
 from Services.RegisterLogin.RegisterLogin import RegisterLoginSvc as RegisterLoginSvc
-import Middleware.security as security
-# from Middleware.middleware import SimpleMiddleWare as SimpleM
-# from Middleware.middleware import MWResponse as MWResponse
 from functools import wraps
-from flask import g, request, redirect, url_for
-
-import Middleware.notification as notification_middleware
 import Middleware.security as security_middleware
+import Middleware.notification as notification_middleware
+
 
 # Setup and use the simple, common Python logging framework. Send log messages to the console.
 # The application should get the log level out of the context. We will change later.
@@ -42,8 +32,11 @@ logger.setLevel(logging.DEBUG)
 #
 # AWS puts this function in the default started application
 # print a nice greeting.
+
+
 def say_hello(username = "World"):
     return '<p>Hello %s!</p>\n' % username
+
 
 # AWS put this here.
 # some bits of text for the page.
@@ -70,12 +63,12 @@ application.add_url_rule('/<username>', 'hello', (lambda username:
     header_text + say_hello(username) + home_link + footer_text))
 
 ##################################################################################################################
-# The stuff I added begins here.
 
 _default_context = None
 _user_service = None
 _registration_service = None
 _profile_service = None
+
 
 def _get_default_context():
 
@@ -95,6 +88,7 @@ def _get_user_service():
 
     return _user_service
 
+
 def _get_registration_service():
     global _registration_service
 
@@ -102,6 +96,7 @@ def _get_registration_service():
         _registration_service = RegisterLoginSvc()
 
     return _registration_service
+
 
 def _get_profile_service():
     global _profile_service
@@ -111,17 +106,15 @@ def _get_profile_service():
 
     return _profile_service
 
+
 def init():
 
-    global _default_context, _user_service
+    global _default_context, _user_service, _registration_service
 
     _default_context = Context.get_default_context()
     _user_service = UserService(_default_context)
     _registration_service = RegisterLoginSvc()
-
-
     logger.debug("_user_service = " + str(_user_service))
-
 
 
 def generate_etag_by_email(email):
@@ -129,8 +122,6 @@ def generate_etag_by_email(email):
     res = user_service.get_by_email(email)
     etag = security_middleware.generate_etag(res)
     return etag
-
-
 
 
 # 1. Extract the input information from the requests object.
@@ -171,6 +162,7 @@ def log_and_extract_input(method, path_params=None):
     logger.debug(log_message)
 
     return inputs
+
 
 def log_response(method, status, data, txt):
 
@@ -407,7 +399,7 @@ def user_email(email):
             etag1 = generate_etag_by_email(email)
             if etag0 != etag1:
                 rsp_status = 411
-                rsp_txt = "Etag doesn't match"
+                rsp_txt = "User information has been modified."
 
             else:
                 rsp = user_service.update_by_email(user_info, email)
@@ -419,17 +411,6 @@ def user_email(email):
                     rsp_data = None
                     rsp_status = 404
                     rsp_txt = "NOT FOUND"
-                    
-            # user_info = dict(inputs["form"])
-            # rsp = user_service.update_by_email(user_info, email)
-            # if rsp is not None:
-            #     rsp_data = rsp
-            #     rsp_status = 200
-            #     rsp_txt = "OK"
-            # else:
-            #     rsp_data = None
-            #     rsp_status = 404
-            #     rsp_txt = "NOT FOUND"
 
         elif inputs["method"] == "DELETE":
             rsp = user_service.delete_by_email(email)
@@ -478,13 +459,6 @@ def profile():
         logger.error("/api/profile: _profile_service = " + str(profile_service))
         if inputs["method"] == "POST":
             profile_info = dict(inputs["body"])
-            #TODO uid from session
-            # 暂时的authorization代码
-            token=inputs["headers"]["Authorization"]
-            temp=jwt.decode(token[2:-1],"cat")
-            # profile_info['uid'] = "get uid from session //todo" if len(profile_info['uid']) < 10 else temp['id']
-            profile_info["uid"]=temp["id"]
-            #TODO
             rsp = profile_service.create_profile(profile_info)
 
             if rsp is not None:
@@ -602,10 +576,6 @@ def profile_uid(uid):
 @application.route("/api/users/<uid>/profile", methods=["GET"])
 def profile_link_uid(uid):
     # TODO
-    pass
-
-@application.route("/api/user", methods=["GET", "PUT", "DELETE"])
-def user_template():
     pass
 
 
