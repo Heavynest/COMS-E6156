@@ -63,7 +63,7 @@ CustomerApp.controller("profileController", function($scope, $http, $location, $
     $scope.updateEmail=function(){update("EMAIL",$scope.emailkind,$scope.email)};
     $scope.updateOther=function(){update("OTHER",$scope.otherkind,$scope.other)};
 
-    function getinfo(id){
+    function getinfo(){
         // var req={
         //     method:"GET",
         //     url:"127.0.0.1:5033/api/profile?uid=42879052-d95e-42dc-ae9f-32b8f7e126c6"
@@ -85,7 +85,7 @@ CustomerApp.controller("profileController", function($scope, $http, $location, $
 
 
      function update(e_type,e_subtype,e_value){
-        var body={"element_type":e_type,"element_subtype":e_subtype,"element_value":e_value};
+        var body={"element_type":e_type,"element_subtype":e_subtype,"element_value":e_value,"uid":$scope.customerInfo["id"]};
 
         sStorage= $window.sessionStorage;
         var req={
@@ -110,6 +110,9 @@ CustomerApp.controller("profileController", function($scope, $http, $location, $
                 $("#InsertModal").modal();
                 console.log("Cool")
                 resolve("OK")
+                getinfo();
+                // setTimeout(function(){$scope.$apply();},1000)
+                // $scope.$apply();
             }).error(function (error) {
                 $scope.insertsuccess=false
                 $("#InsertModal").modal();

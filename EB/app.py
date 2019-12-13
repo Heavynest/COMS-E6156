@@ -7,7 +7,7 @@
 import json
 import jwt
 from uuid import uuid4
-from datetime import datetimegi
+from datetime import datetime
 from flask import Flask, Response, g, request, redirect, url_for
 from Context.Context import Context
 from Services.CustomerInfo.Users import UsersService as UserService
