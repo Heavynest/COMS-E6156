@@ -31,7 +31,7 @@ CustomerApp.controller("profileController", function($scope, $http, $location, $
     $scope.otherkind="Subtype"
     $scope.profileinfo=null
     getinfo(0);
-
+    // console.log($scope.customerInfo)
 
     $scope.addressKind = function(idx) {
         console.log("Address kknk = " + $scope.addressKinds[idx]);
@@ -68,11 +68,11 @@ CustomerApp.controller("profileController", function($scope, $http, $location, $
         //     method:"GET",
         //     url:"127.0.0.1:5033/api/profile?uid=42879052-d95e-42dc-ae9f-32b8f7e126c6"
         // };
-        url="127.0.0.1:5033/api/profile?uid=42879052-d95e-42dc-ae9f-32b8f7e126c6";
+        // url="127.0.0.1:5033/api/profile?uid=42879052-d95e-42dc-ae9f-32b8f7e126c6";
         $http({
             url:"http://127.0.0.1:5033/api/profile",
             method:"GET",
-            params:{"uid":"DFA678F4-C5B5-5B2A-62DB-7973DDCE4EF5"}
+            params:{"uid":$scope.customerInfo["id"]}
         }).success(
             function(data, status, headers){
                 console.log(data)
@@ -106,9 +106,13 @@ CustomerApp.controller("profileController", function($scope, $http, $location, $
                 //
                 // var auth = h.authorization;
                 // sStorage.setItem("token", auth);
+                $scope.insertsuccess=true
+                $("#InsertModal").modal();
                 console.log("Cool")
                 resolve("OK")
             }).error(function (error) {
+                $scope.insertsuccess=false
+                $("#InsertModal").modal();
                 console.log("Error = " + JSON.stringify(error, null, 4));
                 reject("Error")
             });

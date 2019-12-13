@@ -2,7 +2,30 @@
 
 
 <div class="container" ng-app="CustomerApp" ng-controller="profileController">
+    <div id="InsertModal"  class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Insertion result</h4>
+          </div>
+          <div class="modal-body" >
 
+            <div ng-show="!insertsuccess">
+              <h2>Insertion failed</h2>
+            </div>
+              <div ng-show="insertsuccess">
+              <h2>Insertion succeeded</h2>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button  ng-show="loginOK()&&(!loginRegisterResult)" type="button" class="btn btn-default btn-primary" ng-click="driveLogin()">Login or Register</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Call to Action Well -->
     <div class="card text-white bg-secondary my-4">

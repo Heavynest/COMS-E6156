@@ -3,7 +3,8 @@ from Context.Context import Context
 from time import time
 import json
 from urllib.parse import urlparse
-_context = Context()
+import hashlib
+_context = Context.get_default_context()
 
 class ActionException(Exception):
 
