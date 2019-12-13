@@ -231,17 +231,12 @@ def user_register():
 
         r_svc = _get_registration_service()
 
-
-        # logger.error("/email: _user_service = " + str(user_service))
-
         if inputs["method"] == "POST":
 
             user_info = dict(inputs["body"])
             user_info['id']=str(uuid4())
             user_info['status']='pending'
             rsp = r_svc.register(user_info)
-
-            # rsp = user_service.create_user(user_info)
 
             if rsp is not None:
                 rsp_data = rsp
@@ -259,10 +254,7 @@ def user_register():
             rsp_txt = "NOT IMPLEMENTED"
 
         if rsp_data is not None:
-            headers = {"Location": "/api/users/" + link}
-            headers["Authorization"] = auth
-            full_rsp = Response(rsp_txt, headers=headers,
-                                status=rsp_status, content_type="text/plain")
+            full_rsp = Response(json.dumps(rsp_data), status=rsp_status, content_type="application/json")
         else:
             full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
 
@@ -337,7 +329,7 @@ def login():
     rsp_status = None
     rsp_txt = None
 
-    if 1:#try:
+    try:
 
         r_svc = _get_registration_service()
 
@@ -361,28 +353,23 @@ def login():
             rsp_status = 501
             rsp_txt = "NOT IMPLEMENTED"
 
-        logger.error(session.get("token"))
         if rsp_data is not None:
-            # TODO Generalize generating links
-            # headers = {"Authorization": rsp}
             headers = {"Authorization": rsp, "etag": etag}
             full_rsp = Response(json.dumps(rsp_data, default=str), headers=headers,
                                 status=rsp_status, content_type="application/json")
         else:
             full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
 
-    # if 1:#except Exception as e:
-    #     # log_msg = "/api/registration: Exception = " + str(e)
-    #     # logger.error(log_msg)
-    #     rsp_status = 500
-    #     rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
-    #     full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+    except Exception as e:
+        log_msg = "/api/registration: Exception = " + str(e)
+        logger.error(log_msg)
+        rsp_status = 500
+        rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
+        full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
 
     log_response("/api/registration", rsp_status, rsp_data, rsp_txt)
 
     return full_rsp
-
-
 
 
 @application.route("/api/user/<email>", methods=["GET", "POST", "PUT", "DELETE"])
