@@ -3,7 +3,6 @@ import json
 
 
 def publish_it(msg):
-
     client = boto3.client('sns', region_name="us-east-2")
     txt_msg = json.dumps(msg)
 

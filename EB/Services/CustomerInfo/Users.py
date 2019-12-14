@@ -57,7 +57,10 @@ class UsersService(BaseService):
         msg = {
             "email": email
         }
-        notification.publish_it(msg)
+        try:
+            notification.publish_it(msg)
+        except Exception as e:
+            print(str(e))
         return result
 
     @classmethod
