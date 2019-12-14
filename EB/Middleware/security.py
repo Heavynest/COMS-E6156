@@ -106,7 +106,7 @@ def authorize_api_user_email(email, method, token):
     admin_only = ["DELETE"]
 
     try:
-        info = jwt.decode(token, key="jwt-secret")
+        info = jwt.decode(token, key="cat")
     except(jwt.DecodeError, jwt.ExpiredSignatureError):
         raise TokenException()
 
