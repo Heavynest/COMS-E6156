@@ -373,6 +373,15 @@ def user_email(email):
     rsp_data = None
     rsp_status = None
     rsp_txt = None
+    token = inputs['headers']['Authentication']
+    try:
+        security_middleware.authorize_api_user_email(email, inputs["method"], token)
+    except Exception as e:
+        log_msg = "/api/user/<email>: Exception = " + str(e)
+        logger.error(log_msg)
+        rsp_status = 409
+        rsp_txt = "Unauthorized operation!"
+        return Response(rsp_txt, status=rsp_status, content_type="text/plain")
 
     try:
 

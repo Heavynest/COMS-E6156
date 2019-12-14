@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 import hashlib
 _context = Context.get_default_context()
 
+
 class ActionException(Exception):
 
     unknown_error   =   2001
@@ -14,6 +15,16 @@ class ActionException(Exception):
     def __init__(self, code=unknown_error, msg="NOT APPROVED."):
         self.code = code
         self.msg = msg
+
+
+class TokenException(Exception):
+
+    unknown_error   =   2101
+
+    def __init__(self, code=unknown_error, msg="INVALID TOKEN."):
+        self.code = code
+        self.msg = msg
+
 
 def generate_etag(user_info):
     x = json.dumps(user_info, sort_keys = True).encode("utf-8")
@@ -86,3 +97,22 @@ def authorize(url, method, token):
     h = str(h)
 
     return h
+
+
+def authorize_api_user_email(email, method, token):
+    # Extract user information from url. Determine whether the methond should be approved.
+    anyuser = ["GET"]
+    self_only = ["PUT"]
+    admin_only = ["DELETE"]
+
+    try:
+        info = jwt.decode(token, key="jwt-secret")
+    except(jwt.DecodeError, jwt.ExpiredSignatureError):
+        raise TokenException()
+
+    if method in admin_only:
+        if info['role'] != 'admin':
+            raise (ActionException(ActionException.unproved_action))
+    elif method in self_only:
+        if email != info['email']:
+            raise (ActionException(ActionException.unproved_action))
