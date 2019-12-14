@@ -3,6 +3,7 @@ from Context.Context import Context
 from DataAccess.DataObject import UsersRDB as UsersRDB
 from DataAccess.DataObject import ProfileRDB as ProfileRDB
 import Middleware.notification as notification
+import requests
 
 # The base classes would not be IN the project. They would be in a separate included package.
 # They would also do some things.
@@ -104,14 +105,18 @@ class ProfileService(BaseService):
             raise ServiceException(ServiceException.bad_data,
                                    "Phone number looks invalid: " + profile_info.get('element_value'))
         if profile_info.get('element_type') == 'ADDRESS':
-            #TODO get address id
             try:
-                addressId = '//TODO: getAddressId()'
+                # TODO
+                rsp = 1
+                # rsp = requests.get(addressServiceUrl, {'address':profile_info['element_value']})
             except Exception as e:
-                    raise ServiceException(ServiceException.bad_data,
-                                           "Address looks invalid: " + profile_info.get('element_value'))
-            addressPair = {addressId: profile_info['element_value']}
-            addressRow = {profile_info['uid']: addressPair}
-            #TODO address row to DynamoDB
+                raise ServiceException(ServiceException.bad_data,
+                                       "Address Service error: " + profile_info.get('element_value'))
+            # TODO
+            if rsp == 'something':
+                addressId = 'addressId'
+            else:
+                raise ServiceException(ServiceException.bad_data,
+                                       "Address looks invalid: " + profile_info.get('element_value'))
             #profile_info['element_value'] = addressId;
         return profile_info
