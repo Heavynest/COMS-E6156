@@ -58,7 +58,23 @@ CustomerApp.controller("profileController", function($scope, $http, $location, $
 
     baseUrl = "http://127.0.0.1:5033/api";
 
-    $scope.updateAddress=function() {update("ADDRESS",$scope.akind,$scope.address)};
+    $scope.updateAddress=function()
+    {
+        update("ADDRESS",$scope.akind,$scope.address);
+        $http({
+            url:"http://127.0.0.1:5033/api/profile",
+            method:"GET",
+            params:{"uid":$scope.customerInfo["id"]}
+        }).success(
+            function(data, status, headers){
+                console.log(data);
+                $scope.profileinfo=data
+            }).error(function (error) {
+                console.log("Error = " + JSON.stringify(error, null, 4));
+                reject("Error")
+            });
+
+    };
     $scope.updateTelephone=function(){update("TELEPHONE",$scope.telekind,$scope.telephone)};
     $scope.updateEmail=function(){update("EMAIL",$scope.emailkind,$scope.email)};
     $scope.updateOther=function(){update("OTHER",$scope.otherkind,$scope.other)};
@@ -75,7 +91,7 @@ CustomerApp.controller("profileController", function($scope, $http, $location, $
             params:{"uid":$scope.customerInfo["id"]}
         }).success(
             function(data, status, headers){
-                console.log(data)
+                console.log(data);
                 $scope.profileinfo=data
             }).error(function (error) {
                 console.log("Error = " + JSON.stringify(error, null, 4));
@@ -106,11 +122,11 @@ CustomerApp.controller("profileController", function($scope, $http, $location, $
                 //
                 // var auth = h.authorization;
                 // sStorage.setItem("token", auth);
-                $scope.insertsuccess=true
-                $("#InsertModal").modal();
-                console.log("Cool")
-                resolve("OK")
                 getinfo();
+                $scope.insertsuccess=true;
+                $("#InsertModal").modal();
+                console.log("Cool");
+                resolve("OK");
                 // setTimeout(function(){$scope.$apply();},1000)
                 // $scope.$apply();
             }).error(function (error) {
