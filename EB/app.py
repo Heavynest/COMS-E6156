@@ -373,7 +373,7 @@ def user_email(email):
     rsp_data = None
     rsp_status = None
     rsp_txt = None
-    token = inputs['headers']['Authentication']
+    token = inputs['headers']['Authorization']
     try:
         links_info, operations_info = security_middleware.authorize_api_user_email(email, inputs["method"], token)
     except Exception as e:
