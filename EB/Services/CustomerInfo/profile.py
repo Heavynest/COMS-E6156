@@ -7,6 +7,7 @@ import requests
 
 # The base classes would not be IN the project. They would be in a separate included package.
 # They would also do some things.
+addressServiceUrl = "https://edror0iwbf.execute-api.us-east-2.amazonaws.com/api/address"
 
 
 class ServiceException(Exception):
@@ -88,11 +89,11 @@ class ProfileService(BaseService):
     @classmethod
     def get_profile(cls, query_params):
         results = ProfileRDB.get_profile(query_params)
-        # TODO
-        # if results:
-        #     for res in results:
-        #         if res["element_type"] == "ADDRESS":
-        #             res["element_value"] = requests.get
+        if results:
+            for res in results:
+                if res["element_type"] == "ADDRESS":
+                    rsp = requests.get(addressServiceUrl, params={"address_id": res["element_value"]})
+                    res["element_value"] = rsp.text
         return results
 
     @classmethod
