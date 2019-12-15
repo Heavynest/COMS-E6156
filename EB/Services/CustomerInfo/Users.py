@@ -100,7 +100,6 @@ class UsersService(BaseService):
             if v is None:
                 raise ServiceException(ServiceException.missing_field, "Missing field = " + f)
 
-
         result = UsersRDB.update_email(user_info, email)
 
         return result

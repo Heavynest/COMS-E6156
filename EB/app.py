@@ -453,6 +453,56 @@ def user_email(email):
     return full_rsp
 
 
+@application.route("/api/user/<email>/profile", methods=["GET"])
+def profile_user(email):
+    global _profile_service
+    global _user_service
+
+    inputs = log_and_extract_input(demo)
+    rsp_data = None
+    rsp_status = None
+    rsp_txt = None
+
+    try:
+        user_service = _get_user_service()
+        profile_service = _get_profile_service()
+        logger.error("/api/user/" + email + "/profile")
+        uid = user_service.query_by_parameters(params={"email": email}, fields=["id"])
+        uid = uid[0]["id"]
+        if inputs["method"] == "GET":
+
+            rsp = profile_service.get_by_uid(uid)
+
+            if rsp is not None:
+                rsp_data = rsp
+                rsp_status = 200
+                rsp_txt = "OK"
+            else:
+                rsp_data = None
+                rsp_status = 404
+                rsp_txt = "NOT FOUND"
+        else:
+            rsp_data = None
+            rsp_status = 501
+            rsp_txt = "NOT IMPLEMENTED"
+
+        if rsp_data is not None:
+            full_rsp = Response(json.dumps(rsp_data), status=rsp_status, content_type="application/json")
+        else:
+            full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+
+    except Exception as e:
+        log_msg = "/api/user/<email>/profile: Exception = " + str(e)
+        logger.error(log_msg)
+        rsp_status = 500
+        rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
+        full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+
+    log_response("/api/user/<email>/profile: ", rsp_status, rsp_data, rsp_txt)
+
+    return full_rsp
+
+
 @application.route("/api/profile", methods=["GET","POST"])
 def profile():
     global _profile_service
@@ -490,6 +540,10 @@ def profile():
                 rsp_data = None
                 rsp_status = 404
                 rsp_txt = "NOT FOUND"
+        else:
+            rsp_data = None
+            rsp_status = 501
+            rsp_txt = "NOT IMPLEMENTED"
 
         if rsp_data is not None:
             full_rsp = Response(json.dumps(rsp_data), status=rsp_status, content_type="application/json")
@@ -580,12 +634,6 @@ def profile_uid(uid):
     log_response("/api/profile/<uid>: " + uid, rsp_status, rsp_data, rsp_txt)
 
     return full_rsp
-
-
-@application.route("/api/users/<uid>/profile", methods=["GET"])
-def profile_link_uid(uid):
-    # TODO
-    pass
 
 
 @application.route("/api/resource", methods=["GET"])

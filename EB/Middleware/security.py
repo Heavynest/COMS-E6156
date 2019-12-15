@@ -52,8 +52,7 @@ def generate_token(info):
     info['created'] = str('created')
 
     h = jwt.encode(info, key=_context.get_context("JWT_SECRET"))
-    h = str(h)
-
+    h = h.decode("utf-8")
     return h
 
 
