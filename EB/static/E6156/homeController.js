@@ -26,7 +26,7 @@ CustomerApp.controller("homeController", function($scope, $http, $location, $win
     console.log("Port = " + $location.port());
     console.log("Protocol = " + $location.protocol());
 
-    baseUrl = "http://127.0.0.1:5033/api";
+    baseUrl = "http://127.0.0.1:5000/api";
 
     console.log("CustomerService version = " + CustomerService.get_version());
 

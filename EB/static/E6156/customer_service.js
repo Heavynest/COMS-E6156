@@ -17,7 +17,7 @@
             // This is also not a good way to do this anymore.
             var sStorage = $window.sessionStorage;
 
-            var customer_service_base_url = "http://127.0.0.1:5033/api";
+            var customer_service_base_url = "http://127.0.0.1:5000/api";
 
             return {
                 get_version: function () {

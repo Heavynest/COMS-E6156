@@ -56,7 +56,7 @@ CustomerApp.controller("profileController", function($scope, $http, $location, $
         console.log("Address = " + $scope.address);
     };
 
-    baseUrl = "http://127.0.0.1:5033/api";
+    baseUrl = "http://127.0.0.1:5000/api";
 
     $scope.updateAddress=function()
     {
@@ -101,7 +101,7 @@ CustomerApp.controller("profileController", function($scope, $http, $location, $
         // };
         // url="127.0.0.1:5033/api/profile?uid=42879052-d95e-42dc-ae9f-32b8f7e126c6";
         $http({
-            url:"http://127.0.0.1:5033/api/profile",
+            url:"http://127.0.0.1:5000/api/profile",
             method:"GET",
             params:{"uid":$scope.customerInfo["id"]}
         }).success(
