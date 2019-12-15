@@ -353,18 +353,18 @@ def login():
             full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
 
     except Exception as e:
-        log_msg = "/api/registration: Exception = " + str(e)
+        log_msg = "/api/login: Exception = " + str(e)
         logger.error(log_msg)
         rsp_status = 500
         rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
         full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
 
-    log_response("/api/registration", rsp_status, rsp_data, rsp_txt)
+    log_response("/api/login", rsp_status, rsp_data, rsp_txt)
 
     return full_rsp
 
 
-@application.route("/api/user/<email>", methods=["GET", "POST", "PUT", "DELETE"])
+@application.route("/api/user/<email>", methods=["GET", "PUT", "DELETE"])
 def user_email(email):
 
     global _user_service
