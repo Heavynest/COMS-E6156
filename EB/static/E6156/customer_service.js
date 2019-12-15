@@ -70,8 +70,14 @@
                 getCustomer: function (email) {
                     return new Promise(function(resolve, reject) {
                         var url = customer_service_base_url + "/user/" + email;
-
-                        $http.get(url).success(
+                        $http({
+                        url:url,
+                        headers:{
+                            "Authorization":sStorage.getItem("token"),
+                            "Etag":sStorage.getItem("etag")
+                        },
+                        method:"GET",
+                    }).success(
                             function (data, status, headers) {
                                 var rsp = data;
                                 console.log("RSP = " + JSON.stringify(rsp, null, 4));

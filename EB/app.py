@@ -115,8 +115,6 @@ def init():
     _user_service = UserService(_default_context)
     _registration_service = RegisterLoginSvc()
     logger.debug("_user_service = " + str(_user_service))
-
-
 def generate_etag_by_email(email):
     user_service = _get_user_service()
     res = user_service.get_by_email(email)
@@ -373,7 +371,7 @@ def user_email(email):
     rsp_data = None
     rsp_status = None
     rsp_txt = None
-    token = inputs['headers']['Authentication']
+    token = inputs['headers']['Authorization']
     try:
         links_info, operations_info = security_middleware.authorize_api_user_email(email, inputs["method"], token)
     except Exception as e:
