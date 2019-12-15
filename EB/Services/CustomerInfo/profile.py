@@ -87,8 +87,13 @@ class ProfileService(BaseService):
     # profile by query_params
     @classmethod
     def get_profile(cls, query_params):
-        result = ProfileRDB.get_profile(query_params)
-        return result
+        results = ProfileRDB.get_profile(query_params)
+        # TODO
+        # if results:
+        #     for res in results:
+        #         if res["element_type"] == "ADDRESS":
+        #             res["element_value"] = requests.get
+        return results
 
     @classmethod
     def validate_profile(cls, profile_info):
@@ -113,19 +118,7 @@ class ProfileService(BaseService):
         if profile_info.get('element_type') == 'TELEPHONE' and not profile_info.get('element_value').isdigit():
             raise ServiceException(ServiceException.bad_data,
                                    "Phone number looks invalid: " + profile_info.get('element_value'))
-        if profile_info.get('element_type') == 'ADDRESS':
-            try:
-                # TODO
-                rsp = 1
-                # rsp = requests.get(addressServiceUrl, {'address':profile_info['element_value']})
-            except Exception as e:
-                raise ServiceException(ServiceException.bad_data,
-                                       "Address Service error: " + profile_info.get('element_value'))
-            # TODO
-            if rsp == 'something':
-                addressId = 'addressId'
-            else:
-                raise ServiceException(ServiceException.bad_data,
-                                       "Address looks invalid: " + profile_info.get('element_value'))
-            #profile_info['element_value'] = addressId;
+        if profile_info.get('element_type') == 'ADDRESS' and not profile_info.get('element_value').isdigit():
+            raise ServiceException(ServiceException.bad_data,
+                                   "Address id looks invalid: " + profile_info.get('element_value'))
         return profile_info
