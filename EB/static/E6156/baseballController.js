@@ -51,7 +51,7 @@ CustomerApp.controller("baseballController", function($scope, $http, $location, 
     $scope.havePrev = false;
     $scope.haveNext = false;
 
-    var urlBase = "http://127.0.0.1:5000";
+    var urlBase = "http://E6156P1-env.swdckad4ii.us-east-2.elasticbeanstalk.com";
 
     $scope.input = {}
 

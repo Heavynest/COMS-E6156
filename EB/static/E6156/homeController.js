@@ -26,7 +26,7 @@ CustomerApp.controller("homeController", function($scope, $http, $location, $win
     console.log("Port = " + $location.port());
     console.log("Protocol = " + $location.protocol());
 
-    baseUrl = "http://127.0.0.1:5000/api";
+    baseUrl = "http://E6156P1-env.swdckad4ii.us-east-2.elasticbeanstalk.com/api";
 
     console.log("CustomerService version = " + CustomerService.get_version());
 
@@ -111,7 +111,7 @@ CustomerApp.controller("homeController", function($scope, $http, $location, $win
     };
 
 
-    var urlBase = "http://127.0.0.1:5000"
+    var urlBase = "http://E6156P1-env.swdckad4ii.us-east-2.elasticbeanstalk.com"
 
 
 

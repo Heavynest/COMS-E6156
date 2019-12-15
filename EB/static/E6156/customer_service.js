@@ -17,7 +17,7 @@
             // This is also not a good way to do this anymore.
             var sStorage = $window.sessionStorage;
 
-            var customer_service_base_url = "http://127.0.0.1:5000/api";
+            var customer_service_base_url = "http://E6156P1-env.swdckad4ii.us-east-2.elasticbeanstalk.com/api";
 
             return {
                 get_version: function () {
