@@ -759,4 +759,4 @@ if __name__ == "__main__":
     init()
 
     application.debug = True
-    application.run(port=5033)
+    application.run()

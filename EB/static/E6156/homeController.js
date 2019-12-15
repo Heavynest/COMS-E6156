@@ -74,7 +74,7 @@ CustomerApp.controller("homeController", function($scope, $http, $location, $win
                 });
         }).
             catch(function(error) {
-            $scope.passwordhelp="Wrong password.";
+            $scope.passwordhelp="Wrong password or user does not exist.";
             $scope.$apply();
             console.log("Error");
         })
