@@ -11,7 +11,7 @@ CustomerApp.controller("homeController", function($scope, $http, $location, $win
     $scope.loginRegisterResult = false;
     $scope.useEmailLogin = false;
     $scope.menuSelection = 'home';
-
+    $scope.passwordhelp="Please enter the password"
     $scope.lemai = null;
     $scope.password = null;
     $scope.password2 = null;
@@ -74,6 +74,8 @@ CustomerApp.controller("homeController", function($scope, $http, $location, $win
                 });
         }).
             catch(function(error) {
+            $scope.passwordhelp="Wrong password.";
+            $scope.$apply();
             console.log("Error");
         })
     };

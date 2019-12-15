@@ -60,19 +60,34 @@ CustomerApp.controller("profileController", function($scope, $http, $location, $
 
     $scope.updateAddress=function()
     {
-        update("ADDRESS",$scope.akind,$scope.address);
         $http({
-            url:"http://127.0.0.1:5033/api/profile",
-            method:"GET",
-            params:{"uid":$scope.customerInfo["id"]}
+            url:"https://edror0iwbf.execute-api.us-east-2.amazonaws.com/api/address",
+            method:"POST",
+            data:{"address":$scope.address},
+            // headers:{"Access-Control-Allow-Headers":"Access-Control-Allow-Headers"}
         }).success(
             function(data, status, headers){
-                console.log(data);
-                $scope.profileinfo=data
-            }).error(function (error) {
+                console.log("hhh",data)
+                $scope.addid=data
+                console.log($scope.addid)
+            }
+            ).error(function (error) {
                 console.log("Error = " + JSON.stringify(error, null, 4));
                 reject("Error")
             });
+        update("ADDRESS",$scope.akind,$scope.addid);
+        // $http({
+        //     url:"http://127.0.0.1:5033/api/profile",
+        //     method:"GET",
+        //     params:{"uid":$scope.customerInfo["id"]}
+        // }).success(
+        //     function(data, status, headers){
+        //         console.log(data);
+        //         $scope.profileinfo=data
+        //     }).error(function (error) {
+        //         console.log("Error = " + JSON.stringify(error, null, 4));
+        //         reject("Error")
+        //     });
 
     };
     $scope.updateTelephone=function(){update("TELEPHONE",$scope.telekind,$scope.telephone)};
