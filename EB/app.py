@@ -390,7 +390,7 @@ def user_email(email):
         logger.error("/email: _user_service = " + str(user_service))
 
         if inputs["method"] == "GET":
-            fields = ["last_name", "first_name", "email"]
+            fields = ["last_name", "first_name", "email", "id"]
             rsp = user_service.get_by_email(email, fields)
 
             if rsp is not None:
