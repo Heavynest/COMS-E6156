@@ -330,14 +330,14 @@ def login():
             # rsp = r_svc.login(inputs['body'])
             rsp, etag = r_svc.login(inputs['body'])
 
-            if rsp is not False:
+            if rsp is not None:
                 rsp_data = "OK"
                 rsp_status = 201
-                rsp_txt = "CREATED"
+                rsp_txt = "Succeed."
             else:
                 rsp_data = None
                 rsp_status = 403
-                rsp_txt = "NOT AUTHORIZED"
+                rsp_txt = "User not exist or wrong password."
         else:
             rsp_data = None
             rsp_status = 501

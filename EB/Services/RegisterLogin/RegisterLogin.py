@@ -36,17 +36,15 @@ class RegisterLoginSvc():
     @classmethod
     def login(cls, login_info):
         test = security.hash_password({"password" : login_info['password']})
-        # test=login_info['password']
         s_info = user_svc.get_by_email(login_info['email'])
-        test = str(test)
-        if s_info==None :
-            return False
+        if s_info is None:
+            return None, None
         if str(test) == s_info['password']:
             etag = security.generate_etag(s_info)
             tok = security.generate_token(s_info)
-            return tok,etag
+            return tok, etag
         else:
-            return False
+            return None, None
 
     @classmethod
     def get_field_map(cls, target_resource):
