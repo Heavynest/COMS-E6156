@@ -56,9 +56,18 @@ class ProfileService(BaseService):
     # profile by uid
     @classmethod
     def get_by_uid(cls, uid):
-        result = ProfileRDB.get_by_uid(uid)
-        if result is None:
+        result = {}
+        profiles = ProfileRDB.get_by_uid(uid)
+        if profiles is None:
             result = "PROFILE NOT EXISTED"
+        else:
+            email = UsersRDB.query_by_parameters(params={"id": uid}, fields=["email"])
+            result["links"] = [{
+                "rel": "user",
+                "href": "/api/user/" + email[0]["email"],
+                "method": "GET"
+            }]
+            result["profiles"] = profiles
         return result
 
     @classmethod

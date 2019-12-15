@@ -54,10 +54,13 @@ class UsersRDB(BaseDataObject):
 
 #user_email methods
     @classmethod
-    def get_by_email(cls, email):
+    def get_by_email(cls, email, fields):
+        try:
+            sql, args = data_adaptor.create_select(table_name="users", template={"email":email}, fields=fields)
+            res, data = data_adaptor.run_q(sql, args)
+        except Exception as e:
+            raise DataException()
 
-        sql = "select * from e6156.users where email=%s"
-        res, data = data_adaptor.run_q(sql=sql, args=(email), fetch=True)
         if data is not None and len(data) > 0:
             result = data[0]
         else:

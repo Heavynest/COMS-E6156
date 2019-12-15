@@ -375,12 +375,12 @@ def user_email(email):
     rsp_txt = None
     token = inputs['headers']['Authentication']
     try:
-        security_middleware.authorize_api_user_email(email, inputs["method"], token)
+        links_info, operations_info = security_middleware.authorize_api_user_email(email, inputs["method"], token)
     except Exception as e:
-        log_msg = "/api/user/<email>: Exception = " + str(e)
+        log_msg = "/api/user/<email>: Exception = " + str(e.msg)
         logger.error(log_msg)
         rsp_status = 409
-        rsp_txt = "Unauthorized operation!"
+        rsp_txt = e.msg
         return Response(rsp_txt, status=rsp_status, content_type="text/plain")
 
     try:
@@ -390,10 +390,12 @@ def user_email(email):
         logger.error("/email: _user_service = " + str(user_service))
 
         if inputs["method"] == "GET":
-
-            rsp = user_service.get_by_email(email)
+            fields = ["last_name", "first_name", "email"]
+            rsp = user_service.get_by_email(email, fields)
 
             if rsp is not None:
+                rsp['links'] = links_info
+                rsp['operations'] = operations_info
                 rsp_data = rsp
                 rsp_status = 200
                 rsp_txt = "OK"

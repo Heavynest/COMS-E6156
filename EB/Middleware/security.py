@@ -104,6 +104,8 @@ def authorize_api_user_email(email, method, token):
     anyuser = ["GET"]
     self_only = ["PUT"]
     admin_only = ["DELETE"]
+    links_info = None
+    operations_info = None
 
     try:
         info = jwt.decode(token, key="cat")
@@ -116,3 +118,21 @@ def authorize_api_user_email(email, method, token):
     elif method in self_only:
         if email != info['email']:
             raise (ActionException(ActionException.unproved_action))
+
+    if method == "GET":
+        links_info = [{
+            "rel": "profile",
+            "href": "/api/user/" + email + "/profile",
+            "method": "GET"
+        }]
+        operations_info = {
+            "role": info["role"],
+            "api": "/api/user/" + email,
+            "operations": anyuser
+        }
+        if email == info['email']:
+            operations_info["operations"] += self_only
+        if info['role'] == 'admin':
+            operations_info["operations"] += admin_only
+
+    return links_info, operations_info
