@@ -71,12 +71,16 @@ CustomerApp.controller("profileController", function($scope, $http, $location, $
                 console.log("hhh",data)
                 $scope.addid=data
                 console.log($scope.addid)
+                update("ADDRESS",$scope.akind,$scope.addid);
+
             }
             ).error(function (error) {
+                $scope.insertsuccess=false
+                $("#InsertModal").modal();
+                console.log("Error = " + JSON.stringi
                 console.log("Error = " + JSON.stringify(error, null, 4));
                 reject("Error")
             });
-        update("ADDRESS",$scope.akind,$scope.addid);
         // $http({
         //     url:"http://127.0.0.1:5033/api/profile",
         //     method:"GET",
