@@ -390,6 +390,7 @@ def user_email(email):
 
         if inputs["method"] == "GET":
             fields = ["last_name", "first_name", "email", "id"]
+            fields = ",".join(fields)
             rsp = user_service.get_by_email(email, fields)
 
             if rsp is not None:
