@@ -566,7 +566,7 @@ def profile():
         logger.error(log_msg)
         rsp_status = 500
         rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
-        rsp_txt = e
+        rsp_txt = str(e)
         full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
 
     log_response("/api/profile: ", rsp_status, rsp_data, rsp_txt)
@@ -641,7 +641,7 @@ def profile_uid(uid):
         logger.error(log_msg)
         rsp_status = 500
         rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
-        rsp_txt = e
+        rsp_txt = str(e)
         full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
 
     log_response("/api/profile/<uid>: " + uid, rsp_status, rsp_data, rsp_txt)
