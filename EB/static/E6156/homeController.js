@@ -62,6 +62,7 @@ CustomerApp.controller("homeController", function($scope, $http, $location, $win
             $scope.lemail, $scope.password,$scope.register,$scope.lastName,$scope.firstName
         ).then(function (result) {
             console.log("Resolved!");
+            if(!$scope.register){
             $scope.loginRegisterResult = true;
             $scope.showresult="Successful";
             CustomerService.getCustomer($scope.lemail)
@@ -72,6 +73,11 @@ CustomerApp.controller("homeController", function($scope, $http, $location, $win
                 .catch(function(error) {
                     console.log("Boom!")
                 });
+                }
+                else
+                {
+                $scope.doLogout();
+                }
         }).
             catch(function(error) {
             $scope.passwordhelp="Wrong password or user does not exist.";
