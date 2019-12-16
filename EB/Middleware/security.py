@@ -115,7 +115,7 @@ def authorize_api_user_email(email, method, token):
         if info['role'] != 'admin':
             raise (ActionException(ActionException.unproved_action))
     elif method in self_only:
-        if email != info['email']:
+        if info['role'] != 'admin' or email != info['email']:
             raise (ActionException(ActionException.unproved_action))
 
     if method == "GET":
@@ -132,6 +132,6 @@ def authorize_api_user_email(email, method, token):
         if email == info['email']:
             operations_info["operations"] += self_only
         if info['role'] == 'admin':
-            operations_info["operations"] += admin_only
+            operations_info["operations"] = anyuser + self_only + admin_only
 
     return links_info, operations_info
