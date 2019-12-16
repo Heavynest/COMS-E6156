@@ -39,6 +39,7 @@ class RegisterLoginSvc():
         s_info = user_svc.get_by_email(login_info['email'])
         if s_info is None:
             return None, None
+
         if str(test) == s_info['password']:
             etag = security.generate_etag(s_info)
             tok = security.generate_token(s_info)
