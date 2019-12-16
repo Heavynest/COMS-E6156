@@ -56,7 +56,7 @@ CustomerApp.controller("profileController", function($scope, $http, $location, $
         console.log("Address = " + $scope.address);
     };
 
-    baseUrl = "http://E6156P1-env.swdckad4ii.us-east-2.elasticbeanstalk.com";
+    baseUrl = "http://E6156P1-env.swdckad4ii.us-east-2.elasticbeanstalk.com/api";
 
     $scope.updateAddress=function()
     {
