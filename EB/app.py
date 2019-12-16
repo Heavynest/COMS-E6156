@@ -372,7 +372,16 @@ def user_email(email):
     rsp_status = None
     rsp_txt = None
     logger.info(inputs['headers'])
-    token = inputs['headers']['Authorization']
+    try:
+        token = inputs['headers']['Authorization']
+    except Exception as e:
+        log_msg = "/email: Exception = " + str(e)
+        logger.error(log_msg)
+        rsp_status = 408
+        rsp_txt = "Not Authorized"
+        full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
+        return full_rsp
+
     try:
         links_info, operations_info = security_middleware.authorize_api_user_email(email, inputs["method"], token)
     except Exception as e:
@@ -557,7 +566,7 @@ def profile():
         logger.error(log_msg)
         rsp_status = 500
         rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
-        rsp_txt = log_msg
+        rsp_txt = e
         full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
 
     log_response("/api/profile: ", rsp_status, rsp_data, rsp_txt)
@@ -632,7 +641,7 @@ def profile_uid(uid):
         logger.error(log_msg)
         rsp_status = 500
         rsp_txt = "INTERNAL SERVER ERROR. Please take COMSE6156 -- Cloud Native Applications."
-        rsp_txt = log_msg
+        rsp_txt = e
         full_rsp = Response(rsp_txt, status=rsp_status, content_type="text/plain")
 
     log_response("/api/profile/<uid>: " + uid, rsp_status, rsp_data, rsp_txt)
