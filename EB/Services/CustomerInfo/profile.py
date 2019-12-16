@@ -34,7 +34,7 @@ class ProfileService(BaseService):
     required_create_fields = ['uid', 'element_type', 'element_value']
     required_update_fields = ['element_type', 'element_value']
     valid_element_type = ['TELEPHONE', 'ADDRESS', 'EMAIL', 'OTHER']
-    valid_element_sub_type = ['HOME', 'MOBILE', 'WORK']
+    valid_element_sub_type = ['HOME', 'MOBILE', 'WORK', 'OTHER']
 
     def __init__(self, ctx=None):
 
