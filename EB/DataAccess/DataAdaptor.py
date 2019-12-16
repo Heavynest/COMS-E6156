@@ -211,4 +211,12 @@ def create_update(table_name, new_values, template):
     return sql, args
 
 
+def create_delete(table_name, template):
+    """
+    :param template: A template to form the where clause.
+    :return: An update statement template and args.
+    """
+    w_clause, w_args = template_to_where_clause(template)
+    sql = "delete from " + table_name + " " + w_clause
 
+    return sql
