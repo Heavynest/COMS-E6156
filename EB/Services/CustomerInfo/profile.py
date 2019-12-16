@@ -62,7 +62,7 @@ class ProfileService(BaseService):
         if profiles is None:
             result = "PROFILE NOT EXISTED"
         else:
-            email = UsersRDB.query_by_parameters(params={"id": uid}, fields=["email"])
+            email = UsersRDB.query_by_parameters(params={"id": uid}, fields="email")
             result["links"] = [{
                 "rel": "user",
                 "href": "/api/user/" + email[0]["email"],
