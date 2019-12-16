@@ -77,7 +77,6 @@ CustomerApp.controller("profileController", function($scope, $http, $location, $
             ).error(function (error) {
                 $scope.insertsuccess=false
                 $("#InsertModal").modal();
-                console.log("Error = " + JSON.stringi
                 console.log("Error = " + JSON.stringify(error, null, 4));
                 reject("Error")
             });
