@@ -478,7 +478,7 @@ def profile_user(email):
         user_service = _get_user_service()
         profile_service = _get_profile_service()
         logger.error("/api/user/" + email + "/profile")
-        uid = user_service.query_by_parameters(params={"email": email}, fields=["id"])
+        uid = user_service.query_by_parameters(params={"email": email}, fields="id")
         uid = uid[0]["id"]
         if inputs["method"] == "GET":
 
