@@ -17,7 +17,7 @@
             // This is also not a good way to do this anymore.
             var sStorage = $window.sessionStorage;
 
-            var customer_service_base_url = "http://E6156P1-env.swdckad4ii.us-east-2.elasticbeanstalk.com/api";
+            var customer_service_base_url = "http://127.0.0.1:5000/api";
 
             return {
                 get_version: function () {
@@ -49,8 +49,8 @@
                                 var h = headers();
                                 var result = data.data;
                                 console.log("Data = " + JSON.stringify(result, null, 4));
-                                console.log("Headers = " + JSON.stringify(h, null, 4))
-                                console.log("RSP = " + JSON.stringify(rsp, null, 4))
+                                console.log("Headers = " + JSON.stringify(h, null, 4));
+                                console.log("RSP = " + JSON.stringify(rsp, null, 4));
 
                                 var auth = h.authorization;
                                 sStorage.setItem("token", auth);

@@ -26,7 +26,7 @@ CustomerApp.controller("homeController", function($scope, $http, $location, $win
     console.log("Port = " + $location.port());
     console.log("Protocol = " + $location.protocol());
 
-    baseUrl = "http://E6156P1-env.swdckad4ii.us-east-2.elasticbeanstalk.com/api";
+    baseUrl = "http://127.0.0.1:5000/api";
 
     console.log("CustomerService version = " + CustomerService.get_version());
 
@@ -62,16 +62,22 @@ CustomerApp.controller("homeController", function($scope, $http, $location, $win
             $scope.lemail, $scope.password,$scope.register,$scope.lastName,$scope.firstName
         ).then(function (result) {
             console.log("Resolved!");
-            $scope.loginRegisterResult = true;
-            $scope.showresult="Successful";
-            CustomerService.getCustomer($scope.lemail)
-                .then(function(c) {
-                    $scope.customerInfo = c;
-                    $scope.$apply();
-                })
-                .catch(function(error) {
-                    console.log("Boom!")
-                });
+            if(!$scope.register) {
+                $scope.loginRegisterResult = true;
+                $scope.showresult = "Successful";
+                CustomerService.getCustomer($scope.lemail)
+                    .then(function (c) {
+                        $scope.customerInfo = c;
+                        $scope.$apply();
+                    })
+                    .catch(function (error) {
+                        console.log("Boom!")
+                    });
+            }
+            else
+            {
+                $scope.doLogout();
+            }
         }).
             catch(function(error) {
             $scope.passwordhelp="Wrong password or user does not exist.";
@@ -111,7 +117,7 @@ CustomerApp.controller("homeController", function($scope, $http, $location, $win
     };
 
 
-    var urlBase = "http://E6156P1-env.swdckad4ii.us-east-2.elasticbeanstalk.com"
+    var urlBase = "http://127.0.0.1:5000"
 
 
 
