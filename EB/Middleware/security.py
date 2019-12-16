@@ -132,6 +132,6 @@ def authorize_api_user_email(email, method, token):
         if email == info['email']:
             operations_info["operations"] += self_only
         if info['role'] == 'admin':
-            operations_info["operations"] = anyuser + self_only + admin_only
+            operations_info["operations"] = ["GET", "PUT", "DELETE"]
 
     return links_info, operations_info
