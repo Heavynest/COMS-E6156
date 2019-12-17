@@ -115,7 +115,7 @@ def authorize_api_user_email(email, method, token):
         if info['role'] != 'admin':
             raise (ActionException(ActionException.unproved_action))
     elif method in self_only:
-        if info['role'] != 'admin' or email != info['email']:
+        if info['role'] != 'admin' and email != info['email']:
             raise (ActionException(ActionException.unproved_action))
 
     if method == "GET":
